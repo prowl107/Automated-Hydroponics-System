@@ -1,4 +1,5 @@
-#include <Arduino.h>
+#include <avr/io.h>
+#define F_CPU 
 
 // put function declarations here:
 int myFunction(int, int);
