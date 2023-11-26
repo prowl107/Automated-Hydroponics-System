@@ -65,7 +65,7 @@ void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uin
 				}
 			}
 			// sprintf(buffer, "Pixels: %d | i: %d\n", pixels, i);
-			// UART_putstring(buffer);
+			// uart_putstring(buffer);
 		}
 	}
 }
@@ -98,7 +98,7 @@ void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint16_t color, uint
 
 	uint16_t color_buffer[diameter * diameter];
 	sprintf(buffer, " ");
-	UART_putstring(buffer);
+	uart_putstring(buffer);
 
 	for (int i = center_y - radius; i < center_y + radius; i++)
 	{
@@ -108,7 +108,7 @@ void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint16_t color, uint
 		int left = ceil(center_x - dx);
 		int right = floor(center_x + dx);
 		// sprintf(buffer, "LEFT: %d RIGHT: %d dY: %d  dx: %d Center_x : %d\n", left, right, dy, dx, center_x);
-		// UART_putstring(buffer);
+		// uart_putstring(buffer);
 
 		for (int j = center_x - radius; j <= center_x + radius; j++)
 		{
@@ -116,13 +116,13 @@ void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint16_t color, uint
 			{
 				color_buffer[pixel_idx] = bg_color;
 				// sprintf(buffer, "background color\n");
-				// UART_putstring(buffer);
+				// uart_putstring(buffer);
 			}
 			else
 			{
 				color_buffer[pixel_idx] = color;
 				// sprintf(buffer, "white\n");
-				// UART_putstring(buffer);
+				// uart_putstring(buffer);
 			}
 			pixel_idx += 1;
 		}
@@ -188,7 +188,7 @@ void LCD_drawLine(short x0, short y0, short x1, short y1, uint16_t color)
 	/* Horizontal line */
 	if (x0 != x1 && y0 == y1)
 	{
-		UART_putstring("Entered draw horizontal line\n");
+		uart_putstring("Entered draw horizontal line\n");
 		LCD_setAddr(x0, y0, x1, y1);
 
 		/* Determine area of block */

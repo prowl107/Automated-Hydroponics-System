@@ -18,7 +18,7 @@ int main()
   uart_init(9600);
   char buffer[32];
   sprintf(buffer, "Hello World");
-  uart_put_string(buffer);
+  uart_putstring(buffer);
 
   return 0;
 }

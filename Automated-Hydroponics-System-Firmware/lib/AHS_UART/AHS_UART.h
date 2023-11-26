@@ -6,6 +6,6 @@
 
 void uart_init(int baudrate);
 void uart_send(unsigned char data);
-void uart_put_string(char* StringPtr);
+void uart_putstring(char* StringPtr);
 
 #endif

@@ -6,6 +6,7 @@
 #include "AHS_UART.h"
 #include "AHS_ADC.h"
 #include "AHS_TIMER.h"
-
+#include "ST7735.h"
+#include "LCD_GFX.h"
 
 #endif
