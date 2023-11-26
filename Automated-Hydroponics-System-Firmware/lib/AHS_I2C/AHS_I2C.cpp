@@ -45,3 +45,29 @@ void i2c_init()
     TWCR |= (1 << TWEA);
 }
 
+void i2c_start()
+{
+    TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // Send START condition
+    while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the START condition has been transmitted
+}
+
+void i2c_stop()
+{
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO); // Transmit STOP condition
+}
+
+void i2c_write(uint8_t data)
+{
+    TWDR = data;
+    TWCR = (1<<TWINT)|(1<<TWEN);
+    while (!(TWCR & (1<<TWINT)));
+}
+
+uint8_t i2c_read()
+{
+    uint8_t data;
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA);
+    while (!(TWCR & (1<<TWINT)));
+    data = TWDR;
+    return data;
+}
