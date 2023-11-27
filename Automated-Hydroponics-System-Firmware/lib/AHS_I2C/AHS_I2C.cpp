@@ -58,16 +58,16 @@ void i2c_stop()
 
 void i2c_write(uint8_t data)
 {
-    TWDR = data;
-    TWCR = (1<<TWINT)|(1<<TWEN);
-    while (!(TWCR & (1<<TWINT)));
+    TWDR = data; // Load DATA into TWDR register.
+    TWCR = (1<<TWINT)|(1<<TWEN); // Clear TWINT bit in TWCR to start transmission of data
+    while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the DATA has been transmitted, and ACK/NACK has been received.
 }
 
 uint8_t i2c_read()
 {
     uint8_t data;
-    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA);
-    while (!(TWCR & (1<<TWINT)));
+    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA); // Transmit STOP condition
+    while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the DATA has been transmitted, and ACK/NACK has been received.
     data = TWDR;
     return data;
 }
