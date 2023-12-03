@@ -12,5 +12,7 @@ void i2c_stop();
 
 void i2c_write(uint8_t data);
 
+void i2c_setAddress(uint8_t addr, uint8_t read_write);
+
 uint8_t i2c_read();
 #endif

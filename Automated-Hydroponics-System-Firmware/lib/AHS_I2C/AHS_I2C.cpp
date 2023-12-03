@@ -63,6 +63,15 @@ void i2c_write(uint8_t data)
     while (!(TWCR & (1<<TWINT)));
 }
 
+void i2c_setAddress(uint8_t addr, uint8_t read_write)
+{
+    /* NOTE: THe addr should be 7 bits long */
+    TWDR = ((addr & 0x7F)<<1 | (read_write & 0x1));
+    TWCR=(1<<TWINT)|(1<<TWEN);    
+    while (!(TWCR & (1<<TWINT))); 
+    // while((TWSR & 0xF8) != 0x28); /* 0x28 is the TWSR status code for confirming if an ACK has been received */
+}
+
 uint8_t i2c_read()
 {
     uint8_t data;
