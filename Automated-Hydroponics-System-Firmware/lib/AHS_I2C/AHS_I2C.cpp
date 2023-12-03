@@ -47,20 +47,20 @@ void i2c_init()
 
 void i2c_start()
 {
-    TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // Send START condition
+    TWCR |= (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // Send START condition
     while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the START condition has been transmitted
 }
 
 void i2c_stop()
 {
-    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWSTO); // Transmit STOP condition
+    TWCR |= (1<<TWINT)|(1<<TWEN)|(1<<TWSTO); // Transmit STOP condition
 }
 
 void i2c_write(uint8_t data)
 {
-    TWDR = data;
-    TWCR = (1<<TWINT)|(1<<TWEN);
-    while (!(TWCR & (1<<TWINT)));
+    TWDR = data; // Load DATA into TWDR register.
+    TWCR = (1<<TWINT)|(1<<TWEN); // Clear TWINT bit in TWCR to start transmission of data
+    while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the DATA has been transmitted, and ACK/NACK has been received.
 }
 
 void i2c_setAddress(uint8_t addr, uint8_t read_write)
@@ -75,8 +75,8 @@ void i2c_setAddress(uint8_t addr, uint8_t read_write)
 uint8_t i2c_read()
 {
     uint8_t data;
-    TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA);
-    while (!(TWCR & (1<<TWINT)));
+    TWCR |= (1<<TWINT)|(1<<TWEN)|(1<<TWEA); // Transmit STOP condition
+    while (!(TWCR & (1<<TWINT))); // Wait for TWINT flag set. This indicates that the DATA has been transmitted, and ACK/NACK has been received.
     data = TWDR;
     return data;
 }
