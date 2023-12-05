@@ -4,6 +4,9 @@
 #include "avr/io.h"
 #include "avr/interrupt.h"
 
+#define I2C_READ 1
+#define I2C_WRITE 0
+
 void i2c_init();
 
 void i2c_start();

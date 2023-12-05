@@ -8,7 +8,7 @@ void bh1750_init()
   i2c_stop();
 }
 
-uint16_t bh1750_get_light()
+uint16_t bh1750_get_light_raw()
 {
     i2c_start();
     i2c_setAddress(0x23, 1);
@@ -17,4 +17,9 @@ uint16_t bh1750_get_light()
     int data = (high_byte << 8) | low_byte;
     i2c_stop();
     return data;
+}
+
+uint16_t bh1750_get_light()
+{
+    return bh1750_get_light_raw()/1.2;
 }
