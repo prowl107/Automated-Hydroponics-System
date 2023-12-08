@@ -17,37 +17,47 @@
  * Global Functions
  ******************************************************************************/
 
-/**************************************************************************/ /**
-																			  * @fn			uint16_t rgb565(uint8_t red, uint8_t green, uint8_t blue)
-																			  * @brief		Convert RGB888 value to RGB565 16-bit color data
-																			  * @note
-																			  *****************************************************************************/
+/******************************************************************************
+ * @fn			uint16_t rgb565(uint8_t red, uint8_t green, uint8_t blue)
+ * @brief		Convert RGB888 value to RGB565 16-bit color data
+ * @note
+ ******************************************************************************/
 uint16_t rgb565(uint8_t red, uint8_t green, uint8_t blue)
 {
 	return ((((31 * (red + 4)) / 255) << 11) | (((63 * (green + 2)) / 255) << 5) | ((31 * (blue + 4)) / 255));
 }
 
-/**************************************************************************/ /**
-																			  * @fn			void LCD_drawPixel(uint8_t x, uint8_t y, uint16_t color)
-																			  * @brief		Draw a single pixel of 16-bit rgb565 color to the x & y coordinate
-																			  * @note
-																			  *****************************************************************************/
+/*****************************************************************************
+ * @fn			void LCD_drawPixel(uint8_t x, uint8_t y, uint16_t color)
+ * @brief		Draw a single pixel of 16-bit rgb565 color to the x & y coordinate
+ * @note
+ *****************************************************************************/
 void LCD_drawPixel(uint8_t x, uint8_t y, uint16_t color)
 {
 	LCD_setAddr(x, y, x, y);
 	SPI_ControllerTx_16bit(color);
 }
 
-/**************************************************************************/ /**
-																			  * @fn			void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uint16_t bColor)
-																			  * @brief		Draw a character starting at the point with foreground and background colors
-																			  * @note
-																			  *****************************************************************************/
+/****************************************************************************
+ * @fn			void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uint16_t bColor)
+ * @brief		Draw a character starting at the point with foreground and background colors
+ * @note
+ *****************************************************************************/
 void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uint16_t bColor)
 {
+	/********************************************
+	 * Local Variables
+	 *******************************************/
+	uint16_t width_displacement = 5;
+	uint16_t height_displacement = 8;
+	uint16_t pixel_color_buf[height_displacement][width_displacement];
 	uint16_t row = character - 0x20; // Determine row of ASCII table starting at space
 	int i, j;
 	char buffer[50];
+
+	/********************************************
+	 * Create pixel data
+	 *******************************************/
 	if ((LCD_WIDTH - x > 7) && (LCD_HEIGHT - y > 7))
 	{
 		for (i = 0; i < 5; i++)
@@ -57,30 +67,48 @@ void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uin
 			{
 				if ((pixels >> j) & 1 == 1)
 				{
-					LCD_drawPixel(x + i, y + j, fColor);
+					pixel_color_buf[j][i] = fColor;
 				}
 				else
 				{
-					LCD_drawPixel(x + i, y + j, bColor);
+					pixel_color_buf[j][i] = bColor;
 				}
 			}
 			// sprintf(buffer, "Pixels: %d | i: %d\n", pixels, i);
 			// uart_putstring(buffer);
 		}
 	}
+
+	/********************************************
+	 * Write pixel data to screen
+	 *******************************************/
+	LCD_setAddr(x, y, x + width_displacement - 1, y + height_displacement - 1);
+	for (int i = 0; i < height_displacement; i++)
+	{
+		for (int j = 0; j < width_displacement; j++)
+		{
+			uint8_t temp = pixel_color_buf[i][j] >> 8;
+			clear(LCD_PORT, LCD_TFT_CS); // CS pulled low to start communication
+
+			SPDR = temp; // Place data to be sent on rgisters
+			while (!(SPSR & (1 << SPIF)))
+				; // wait for end of transmission
+
+			temp = (0xFF) & pixel_color_buf[i][j];
+			SPDR = temp; // Place data to be sent on registers
+			while (!(SPSR & (1 << SPIF)))
+				; // wait for end of transmission
+
+			set(LCD_PORT, LCD_TFT_CS); // set CS to high
+		}
+	}
 }
 
-/******************************************************************************
- * LAB 4 TO DO. COMPLETE THE FUNCTIONS BELOW.
- * You are free to create and add any additional files, libraries, and/or
- *  helper function. All code must be authentically yours.
- ******************************************************************************/
-
-/**************************************************************************/ /**
-																			  * @fn			void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius,uint16_t color)
-																			  * @brief		Draw a colored circle of set radius at coordinates
-																			  * @note
-																			  *****************************************************************************/
+/****************************************************************************
+ * @fn			void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius,uint16_t color)
+ * @brief		Draw a colored circle of set radius at coordinates
+ * @note
+ *****************************************************************************/
 void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint16_t color, uint16_t bg_color)
 {
 	uint16_t theta = 0;
