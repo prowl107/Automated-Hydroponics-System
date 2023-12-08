@@ -216,7 +216,7 @@ void LCD_drawLine(short x0, short y0, short x1, short y1, uint16_t color)
 	/* Horizontal line */
 	if (x0 != x1 && y0 == y1)
 	{
-		uart_putstring("Entered draw horizontal line\n");
+		// uart_putstring("Entered draw horizontal line\n");
 		LCD_setAddr(x0, y0, x1, y1);
 
 		/* Determine area of block */

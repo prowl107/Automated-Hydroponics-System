@@ -3,12 +3,11 @@
  * File: main.cpp
  *
  * Purpose: Main module for automated hydroponics system firmware
- * 
+ *
  * Authors: Oryza Tarigan, Shreya Maggo, Miles Osborne
  *
  *************************************************************************/
 #include "AHS_CORE.h"
-
 
 char String[25];           // buffer to store pH value
 uint8_t pH_pixel;          // value for pixel position of pH value in the graph
@@ -17,8 +16,8 @@ volatile int scenario = 0; // variable corresponding to type of display
 int main()
 {
   Initialize();
-  InitializePWM();        // Initilaise PWM for LED brightness settings
-  Initialize_interrupt(); // Initialise Interrupt to control display change
+  InitializePWM(); // Initilaise PWM for LED brightness settings
+  // Initialize_interrupt(); // Initialise Interrupt to control display change
 
   uint64_t lux_value; // To store the lux value from the light sensor
 
@@ -70,6 +69,11 @@ int main()
 
       while (1)
       {
+        if (PIND & (1 << PIND2))
+        {
+          scenario = 1; // Toggle/switch scene being displayed on the graph
+        }
+
         aht20_init(&sensor); // Initialize Tempertature, Humidity sensor
 
         aht20_update(&sensor); // Update AHT20 sensor
@@ -82,7 +86,7 @@ int main()
         activate_pump(pH_value);  // Checking the pH value to run pump
 
         /* -------- Store sensor data in buffers in string format --------- */
-        dtostrf(sensor.temperature_celsius, 6, 2, temp_buf_1);
+        (sensor.temperature_celsius, 6, 2, temp_buf_1);
         dtostrf(sensor.temperature_fahrenheit, 6, 2, temp_buf_2);
         dtostrf(sensor.relative_humidity, 6, 2, humidity_buf);
         sprintf(light_buf, "%d", lux_value);
@@ -128,7 +132,7 @@ int main()
         // uart_putstring(buffer);
 
         /* Break out of current scene if interrupt is detected */
-        if (scenario == 1)
+        if (scenario == 1 && !(PIND & (1 << PIND2)))
         {
           break;
         }
@@ -151,9 +155,14 @@ int main()
       while (1)
       {
         sprintf(String, "scenario 1\n");
-        uart_putstring(String);
+        // uart_putstring(String);
         /* Break out of current scene if interrupt is detected s*/
-        if (scenario == 0)
+        if (PIND & (1 << PIND2))
+        {
+          scenario = 0; // Toggle/switch scene being displayed on the graph
+        }
+
+        if (scenario == 0 && !(PIND & (1 << PIND2)))
         {
           break;
         }
@@ -191,7 +200,12 @@ int main()
              * loop's condition variable is reset to the initial state
              * effectively creating an infinite loop
              ****************************************************************/
-            if (scenario == 0)
+            if (PIND & (1 << PIND2))
+            {
+              scenario = 0; // Toggle/switch scene being displayed on the graph
+            }
+
+            if (scenario == 0 && !(PIND & (1 << PIND2)))
             {
               break;
             }
@@ -208,25 +222,15 @@ int main()
               {
                 LCD_drawPixel(i, pH_pixel_array[i], 0xffff);
               }
+
+              if (PIND & (1 << PIND2))
+              {
+                scenario = 0; // Toggle/switch scene being displayed on the graph
+              }
             }
           }
         }
       }
     }
   }
-}
-
-/* ---------- Interrupt Service Routine to change display type ---------- */
-ISR(PCINT2_vect)
-{
-  if (PIND & (1 << PIND2))
-  {
-    scenario ^= 1; // Toggle/switch scene being displayed on the graph
-  }
-
-  /* Serial communication to check which display is played on the LCD
-  char buffer[32];
-  sprintf(buffer, "Interrupted | Scenario: %d\n", scenario);
-  uart_putstring(buffer);
-  */
 }

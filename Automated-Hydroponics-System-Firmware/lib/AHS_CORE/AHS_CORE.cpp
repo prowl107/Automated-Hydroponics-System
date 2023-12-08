@@ -7,7 +7,7 @@ void Initialize()
   adc_init();          // Initialise Analog to Digital Converter (A0)
   i2c_init();          // Initialise I2C communication
   bh1750_init();       // Initialise light sensor
-  DDRD |= (1 << PD5);  // Pin D5 set to output for pump
+  DDRC |= (1 << PC2);  // Pin D5 set to output for pump
   DDRD &= ~(1 << PD2); // Pin D2 set to input for switch
 }
 
@@ -17,8 +17,14 @@ void Initialize_interrupt() // Initialise pin change interrupt on Pin 2
   cli();                    // Disable global interrupts
   DDRD &= ~(1 << DDD2);     // Pin D2 for the switch
   PORTD |= (1 << DDD2);     // Enable pull up resistor for PD2
+  PCICR &= ~(0X7);               /* Reset pin change inerrupt enable */
   PCICR |= (1 << PCIE2);    // Enable PCINT18 pin change interrupt
+  PCICR &= ~(1 << PCIE1);
+  PCICR &= ~(1 << PCIE0);
+  PCMSK2 = 0;
   PCMSK2 |= (1 << PCINT18); // Enable trigger for PCINT18
+  PCMSK1 = 0;
+  PCMSK0 = 0;
   sei();                    // Enable global interrupts
 }
 
@@ -96,11 +102,11 @@ void activate_pump(float pH_value)
 {
   if (pH_value < 5.5)
   {
-    PORTD |= (1 << PORTD5); // Turn on pump if pH less than 5.5
+    PORTC |= (1 << PC2); // Turn on pump if pH less than 5.5
   }
   else
   {
-    PORTD &= ~(1 << PORTD5); // Turn on pump otherwise
+    PORTC &= ~(1 << PC2); // Turn off pump otherwise
   }
 }
 
